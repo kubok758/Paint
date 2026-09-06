@@ -1,4 +1,4 @@
-const CACHE_NAME = "paint-ai-v8";
+const CACHE_NAME = "paint-ai-v9";
 const APP_SHELL = [
   "./",
   "./index.html",
