@@ -67,9 +67,9 @@
     </section>
     <aside class="panel side ai">
       <div class="ai-head"><div class="ai-title"><span class="spark">✦</span>AI РИСОВАНИЕ</div><span class="badge">OpenRouter</span></div>
-      <p class="copy">Опиши, что должно быть на картинке. Модель составит план из линий и фигур, а холст покажет его вживую.</p>
+      <p class="copy">Опиши, что должно быть на картинке. Несколько моделей могут стартовать одновременно — победит первая, которая вернёт полный план.</p>
       <div><label class="label" for="apiKey">API‑ключ OpenRouter <span class="note">не нужен для демо</span></label><div class="wrap"><input class="input" id="apiKey" type="password" autocomplete="off" placeholder="sk-or-v1-..." spellcheck="false"><button class="eye" id="toggleKey">◉</button></div><label class="remember"><input id="rememberKey" type="checkbox">Запомнить ключ на этом устройстве</label></div>
-      <div><label class="label" for="model">Модель</label><input class="input" id="model" type="text" value="openrouter/free" spellcheck="false"></div>
+      <div><label class="label" for="model">Модели для гонки <span class="note">через запятую · до 5</span></label><input class="input" id="model" type="text" value="openrouter/free" spellcheck="false"></div>
       <div><div class="prompt-head"><label class="label" for="prompt" style="margin:0">Что нарисовать?</label><button class="example" id="example">подставить пример</button></div><textarea class="prompt" id="prompt">маленький домик у озера на закате, горы на заднем плане, уютный мультяшный стиль</textarea></div>
       <div class="ai-actions"><button class="btn primary" id="generate">✦ Сгенерировать и рисовать</button><button class="btn" id="demo">Демо</button></div>
       <div class="progress" id="progress"><div class="progress-top"><span id="progressLabel">Подготовка…</span><b id="progressCount">0 / 0</b></div><div class="track"><div class="bar" id="bar"></div></div><div class="speed"><span>медленнее</span><input id="speed" type="range" min="30" max="900" value="180"><span>быстрее</span><b id="speedValue">180 мс</b></div></div>
@@ -100,9 +100,7 @@
       var last = null;
       var draft = null;
       var busy = false;
-      var controller = null;
-      var requestTimer = null;
-      var requestTimedOut = false;
+      var activeControllers = [];
       var stopAnimation = false;
       var toastTimer = null;
       var $ = function (id) { return document.getElementById(id); };
@@ -537,7 +535,14 @@
         return error;
       }
 
-      async function streamPlan(key, model, prompt, jsonMode) {
+      function parseModelList(value) {
+        var list = String(value || '').split(',').map(function (model) { return model.trim(); }).filter(Boolean).slice(0, 5);
+        if (!list.length) list = ['openrouter/free'];
+        if (list.length === 1 && list[0] === 'openrouter/free') return ['openrouter/free', 'openrouter/free', 'openrouter/free'];
+        return list;
+      }
+
+      async function streamPlan(key, model, prompt, jsonMode, signal) {
         var system = [
           'Ты — движок векторного рисования для HTML Paint.',
           'Преврати описание сцены в пошаговый план плоского 2D рисунка.',
@@ -558,25 +563,18 @@
           ],
           stream: true,
           temperature: .65,
-          max_tokens: 5000
+          max_tokens: 8000
         };
         if (jsonMode) body.response_format = { type: 'json_object' };
         var response;
-        if (requestTimer) clearTimeout(requestTimer);
-        requestTimedOut = false;
-        requestTimer = setTimeout(function () {
-          requestTimedOut = true;
-          if (controller) controller.abort();
-        }, 45000);
         try {
           response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'X-OpenRouter-Title': 'PAINT//AI' },
             body: JSON.stringify(body),
-            signal: controller ? controller.signal : undefined
+            signal: signal
           });
         } catch (error) {
-          if (requestTimedOut) throw new Error('OpenRouter не ответил за 45 секунд. Попробуй другую модель или повтори запрос позже.');
           if (error && error.name === 'AbortError') throw new Error('Запрос отменён');
           throw new Error('Не удалось подключиться к OpenRouter. Если файл открыт напрямую, попробуй открыть его через локальный сервер.');
         }
@@ -611,53 +609,116 @@
             }
             var delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content;
             if (Array.isArray(delta)) delta = delta.map(function (part) { return part.text || ''; }).join('');
-            if (delta) {
-              text += delta;
-              output.textContent = text;
-              output.scrollTop = output.scrollHeight;
-              liveState.textContent = 'получаю план…';
-            }
+            if (delta) text += delta;
           });
         }
         return text;
       }
 
+      function runTimedAttempt(task, attemptController, model) {
+        return new Promise(function (resolve, reject) {
+          var settled = false;
+          var timer = setTimeout(function () {
+            if (settled) return;
+            settled = true;
+            attemptController.abort();
+            reject(new Error('Модель ' + model + ' не ответила за 45 секунд'));
+          }, 45000);
+          Promise.resolve().then(task).then(function (value) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            resolve(value);
+          }, function (error) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            reject(error);
+          });
+        });
+      }
+
+      async function attemptModel(key, model, prompt, attemptController) {
+        var run = function (jsonMode) {
+          return runTimedAttempt(function () { return streamPlan(key, model, prompt, jsonMode, attemptController.signal); }, attemptController, model);
+        };
+        var answer;
+        try {
+          answer = await run(true);
+        } catch (error) {
+          var retry = error && error.status === 400 && !error.hasOutput && /json|response_format|format/i.test(error.message || '');
+          if (!retry) throw error;
+          answer = await run(false);
+        }
+        var plan = extractJSON(answer);
+        normalizePlan(plan);
+        return { model: model, answer: answer, plan: plan };
+      }
+
+      function cancelActiveRequests() {
+        activeControllers.forEach(function (attemptController) {
+          try { attemptController.abort(); } catch (e) {}
+        });
+        activeControllers = [];
+      }
+
+      function racePlans(key, models, prompt) {
+        activeControllers = models.map(function () { return new AbortController(); });
+        var attempts = models.map(function (model, index) {
+          return attemptModel(key, model, prompt, activeControllers[index]);
+        });
+        return new Promise(function (resolve, reject) {
+          var remaining = attempts.length;
+          var errors = [];
+          attempts.forEach(function (attempt, index) {
+            attempt.then(resolve).catch(function (error) {
+              errors[index] = error;
+              remaining -= 1;
+              if (!remaining) {
+                var lastError = errors.filter(Boolean).pop();
+                reject(new Error('Ни одна модель не вернула полный план. ' + (lastError && lastError.message || 'Проверь модели и API‑ключ.')));
+              }
+            });
+          });
+        }).then(function (winner) {
+          cancelActiveRequests();
+          return winner;
+        }, function (error) {
+          cancelActiveRequests();
+          throw error;
+        });
+      }
+
       async function generate() {
         var key = $('apiKey').value.trim();
         var prompt = $('prompt').value.trim();
-        var model = $('model').value.trim() || 'openrouter/free';
+        var modelInput = $('model').value.trim() || 'openrouter/free';
+        var models = parseModelList(modelInput);
         if (!key) { toast('Введи API‑ключ OpenRouter или запусти «Демо».', true); $('apiKey').focus(); return; }
         if (!prompt) { toast('Сначала напиши, что нарисовать.', true); $('prompt').focus(); return; }
         setBusy(true);
-        controller = new AbortController();
         stopAnimation = false;
         progress.classList.add('show');
-        progressLabel.textContent = 'Модель строит план…';
-        progressCount.textContent = 'ожидание';
+        progressLabel.textContent = 'Гонка моделей…';
+        progressCount.textContent = models.length + ' потока';
         bar.style.width = '3%';
         output.textContent = '';
-        liveState.textContent = 'подключение…';
+        liveState.textContent = 'гонка · ' + models.length + ' моделей';
         empty.style.display = 'grid';
         stepList.innerHTML = '';
-        setStatus('модель отвечает', 'busy');
+        setStatus('модели отвечают', 'busy');
         try {
-          var answer;
-          try {
-            answer = await streamPlan(key, model, prompt, true);
-          } catch (error) {
-            var retry = error && error.status === 400 && !error.hasOutput && /json|response_format|format/i.test(error.message || '');
-            if (!retry) throw error;
-            liveState.textContent = 'совместимый режим…';
-            answer = await streamPlan(key, model, prompt, false);
-          }
-          var plan = extractJSON(answer);
-          output.textContent = JSON.stringify(plan, null, 2);
-          await animate(plan, 'OpenRouter');
-          toast('AI‑рисунок готов');
+          var winner = await racePlans(key, models, prompt);
+          if (stopAnimation) throw new Error('Рисование остановлено');
+          output.textContent = winner.answer;
+          output.scrollTop = output.scrollHeight;
+          liveState.textContent = 'победила: ' + winner.model;
+          await animate(winner.plan, 'OpenRouter · ' + winner.model);
+          toast('AI‑рисунок готов · ответила ' + winner.model);
         } catch (error) {
           drawHud.hidden = true;
           var message = String(error && error.message || '');
-          if (message.indexOf('остановлено') >= 0 || message.indexOf('отменён') >= 0) {
+          if (stopAnimation || message.indexOf('остановлено') >= 0 || message.indexOf('отменён') >= 0) {
             setStatus('остановлено');
             liveState.textContent = 'остановлено';
             toast('Рисование остановлено');
@@ -667,11 +728,7 @@
             toast(message || 'Что-то пошло не так', true);
           }
         } finally {
-          if (requestTimer) {
-            clearTimeout(requestTimer);
-            requestTimer = null;
-          }
-          controller = null;
+          cancelActiveRequests();
           setBusy(false);
         }
       }
@@ -728,7 +785,7 @@
 
       function stop() {
         stopAnimation = true;
-        if (controller) controller.abort();
+        cancelActiveRequests();
       }
 
       function setBusy(value) {
