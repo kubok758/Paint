@@ -121,6 +121,7 @@
       var livePanel = $('livePanel');
       var raceGrid = $('raceGrid');
       var raceCards = [];
+      var artworkMeta = { kind: 'manual', prompt: '', model: '' };
 
       function clamp(n, min, max) {
         return Math.max(min, Math.min(max, n));
@@ -195,6 +196,7 @@
 
       function undo() {
         if (busy || !undoStack.length) return;
+        artworkMeta = { kind: 'manual', prompt: '', model: '' };
         redoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
         ctx.putImageData(undoStack.pop(), 0, 0);
         updateHistoryButtons();
@@ -203,6 +205,7 @@
 
       function redo() {
         if (busy || !redoStack.length) return;
+        artworkMeta = { kind: 'manual', prompt: '', model: '' };
         undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
         ctx.putImageData(redoStack.pop(), 0, 0);
         updateHistoryButtons();
@@ -280,6 +283,7 @@
       function down(event) {
         if (busy) return;
         event.preventDefault();
+        artworkMeta = { kind: 'manual', prompt: '', model: '' };
         canvas.setPointerCapture(event.pointerId);
         drawing = true;
         start = pointer(event);
@@ -313,17 +317,164 @@
 
       function clearCanvas() {
         if (busy) return;
+        artworkMeta = { kind: 'manual', prompt: '', model: '' };
         saveUndo();
         ctx.clearRect(0, 0, W, H);
         setStatus('холст очищен');
       }
 
+      function roundRectPath(target, x, y, width, height, radius) {
+        var r = Math.min(radius, width / 2, height / 2);
+        target.beginPath();
+        target.moveTo(x + r, y);
+        target.arcTo(x + width, y, x + width, y + height, r);
+        target.arcTo(x + width, y + height, x, y + height, r);
+        target.arcTo(x, y + height, x, y, r);
+        target.arcTo(x, y, x + width, y, r);
+        target.closePath();
+      }
+
+      function wrappedLines(target, text, maxWidth, maxLines) {
+        var words = String(text || '').trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+        if (!words.length) return [];
+        var lines = [];
+        var line = '';
+        words.forEach(function (word) {
+          var candidate = line ? line + ' ' + word : word;
+          if (line && target.measureText(candidate).width > maxWidth) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = candidate;
+          }
+        });
+        if (line) lines.push(line);
+        if (lines.length > maxLines) {
+          lines = lines.slice(0, maxLines);
+          var last = lines[maxLines - 1];
+          while (last.length > 1 && target.measureText(last + '…').width > maxWidth) last = last.slice(0, -1);
+          lines[maxLines - 1] = last + '…';
+        }
+        return lines;
+      }
+
+      function exportArtwork() {
+        var scale = 2;
+        var cardWidth = 1200;
+        var outer = 52;
+        var imageFrameX = outer;
+        var imageFrameY = 146;
+        var imageFrameWidth = cardWidth - outer * 2;
+        var imagePadding = 15;
+        var imageWidth = imageFrameWidth - imagePadding * 2;
+        var imageHeight = Math.round(imageWidth * H / W);
+        var imageFrameHeight = imageHeight + imagePadding * 2;
+        var metadataY = imageFrameY + imageFrameHeight + 36;
+        var contentWidth = cardWidth - outer * 2;
+        var promptLines = [];
+        var isAi = artworkMeta.kind === 'ai' && artworkMeta.prompt;
+        var heading = isAi ? 'AI-РИСУНОК' : artworkMeta.kind === 'demo' ? 'ДЕМО-РИСУНОК' : 'РУЧНОЙ РИСУНОК';
+        var title = isAi ? 'Нарисовано по запросу' : artworkMeta.kind === 'demo' ? 'Локальная демонстрация' : 'Создано на холсте вручную';
+        var cardHeight;
+        var exportCanvas = document.createElement('canvas');
+        var exportCtx;
+
+        exportCanvas.width = cardWidth * scale;
+        exportCanvas.height = 1000 * scale;
+        exportCtx = exportCanvas.getContext('2d');
+        exportCtx.setTransform(scale, 0, 0, scale, 0, 0);
+        exportCtx.font = '500 17px Inter, system-ui, sans-serif';
+        if (isAi) promptLines = wrappedLines(exportCtx, artworkMeta.prompt, contentWidth, 6);
+        cardHeight = metadataY + 116 + (isAi ? promptLines.length * 27 + 58 : 0);
+        exportCanvas.height = cardHeight * scale;
+        exportCtx = exportCanvas.getContext('2d');
+        exportCtx.setTransform(scale, 0, 0, scale, 0, 0);
+
+        var background = exportCtx.createLinearGradient(0, 0, cardWidth, cardHeight);
+        background.addColorStop(0, '#172235');
+        background.addColorStop(.46, '#0f151e');
+        background.addColorStop(1, '#0a0d13');
+        exportCtx.fillStyle = background;
+        exportCtx.fillRect(0, 0, cardWidth, cardHeight);
+        roundRectPath(exportCtx, 1, 1, cardWidth - 2, cardHeight - 2, 30);
+        exportCtx.strokeStyle = '#435168';
+        exportCtx.lineWidth = 2;
+        exportCtx.stroke();
+
+        exportCtx.fillStyle = '#a9e66b';
+        exportCtx.fillRect(outer, 38, 72, 5);
+        exportCtx.font = '800 31px Inter, system-ui, sans-serif';
+        exportCtx.fillText('PAINT', outer, 87);
+        var paintWidth = exportCtx.measureText('PAINT').width;
+        exportCtx.fillStyle = '#a9e66b';
+        exportCtx.fillText('//AI', outer + paintWidth + 4, 87);
+        exportCtx.fillStyle = '#9aa6b7';
+        exportCtx.font = '500 14px Inter, system-ui, sans-serif';
+        exportCtx.fillText('ручной холст + пошаговая генерация', outer, 111);
+        exportCtx.textAlign = 'right';
+        exportCtx.fillStyle = '#6c788a';
+        exportCtx.font = '700 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+        exportCtx.fillText('PNG EXPORT', cardWidth - outer, 62);
+        exportCtx.font = '500 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+        exportCtx.fillText('900 × 650', cardWidth - outer, 82);
+        exportCtx.textAlign = 'left';
+
+        exportCtx.save();
+        exportCtx.shadowColor = '#000b';
+        exportCtx.shadowBlur = 28;
+        exportCtx.shadowOffsetY = 13;
+        roundRectPath(exportCtx, imageFrameX, imageFrameY, imageFrameWidth, imageFrameHeight, 18);
+        exportCtx.fillStyle = '#070a0f';
+        exportCtx.fill();
+        exportCtx.restore();
+        exportCtx.save();
+        roundRectPath(exportCtx, imageFrameX, imageFrameY, imageFrameWidth, imageFrameHeight, 18);
+        exportCtx.clip();
+        exportCtx.drawImage(canvas, imageFrameX + imagePadding, imageFrameY + imagePadding, imageWidth, imageHeight);
+        exportCtx.restore();
+        roundRectPath(exportCtx, imageFrameX, imageFrameY, imageFrameWidth, imageFrameHeight, 18);
+        exportCtx.strokeStyle = '#f2f5f9';
+        exportCtx.lineWidth = 2;
+        exportCtx.stroke();
+        exportCtx.fillStyle = '#dbe4f0';
+        exportCtx.font = '500 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+        exportCtx.fillText('PAINT//AI · ' + heading.toLowerCase(), outer + 18, imageFrameY + imageFrameHeight - 14);
+
+        exportCtx.fillStyle = '#a9e66b';
+        exportCtx.font = '800 12px ui-monospace, SFMono-Regular, Menlo, monospace';
+        exportCtx.fillText(heading, outer, metadataY);
+        exportCtx.fillStyle = '#f2f5f9';
+        exportCtx.font = '700 24px Inter, system-ui, sans-serif';
+        exportCtx.fillText(title, outer, metadataY + 37);
+        if (isAi) {
+          exportCtx.fillStyle = '#9aa6b7';
+          exportCtx.font = '700 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+          exportCtx.fillText('ЗАПРОС', outer, metadataY + 70);
+          exportCtx.fillStyle = '#dbe4f0';
+          exportCtx.font = '500 17px Inter, system-ui, sans-serif';
+          promptLines.forEach(function (line, index) {
+            exportCtx.fillText(line, outer, metadataY + 96 + index * 27);
+          });
+          exportCtx.fillStyle = '#6c788a';
+          exportCtx.font = '500 12px ui-monospace, SFMono-Regular, Menlo, monospace';
+          exportCtx.fillText('модель: ' + String(artworkMeta.model || 'OpenRouter'), outer, metadataY + 111 + promptLines.length * 27);
+        } else {
+          exportCtx.fillStyle = '#9aa6b7';
+          exportCtx.font = '500 14px Inter, system-ui, sans-serif';
+          exportCtx.fillText(artworkMeta.kind === 'demo' ? 'План воспроизведён локально без API.' : 'Рисунок создан инструментами PAINT//AI.', outer, metadataY + 70);
+          exportCtx.fillStyle = '#6c788a';
+          exportCtx.font = '500 12px ui-monospace, SFMono-Regular, Menlo, monospace';
+          exportCtx.fillText('дата: ' + new Date().toLocaleDateString('ru-RU'), outer, metadataY + 101);
+        }
+        return exportCanvas;
+      }
+
       function download() {
         var link = document.createElement('a');
-        link.download = 'paint-ai-' + new Date().toISOString().slice(0, 10) + '.png';
-        link.href = canvas.toDataURL('image/png');
+        link.download = 'paint-ai-framed-' + new Date().toISOString().slice(0, 10) + '.png';
+        link.href = exportArtwork().toDataURL('image/png');
         link.click();
-        toast('PNG сохранён');
+        toast('PNG с рамкой и подписью сохранён');
       }
 
       function importImage(file) {
@@ -332,6 +483,7 @@
         reader.onload = function () {
           var image = new Image();
           image.onload = function () {
+            artworkMeta = { kind: 'manual', prompt: '', model: '' };
             saveUndo();
             ctx.save();
             ctx.clearRect(0, 0, W, H);
@@ -814,6 +966,7 @@
         try {
           var winner = await racePlans(key, models, prompt);
           if (stopAnimation) throw new Error('Рисование остановлено');
+          artworkMeta = { kind: 'ai', prompt: prompt, model: winner.model };
           liveState.textContent = 'победила: ' + winner.model;
           await settleRaceView(winner.index, JSON.stringify(winner.plan, null, 2));
           await animate(winner.plan, 'OpenRouter · ' + winner.model);
@@ -871,6 +1024,7 @@
 
       async function runDemo() {
         if (busy) return;
+        artworkMeta = { kind: 'demo', prompt: '', model: '' };
         setBusy(true);
         raceGrid.hidden = true;
         output.hidden = false;
