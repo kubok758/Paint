@@ -101,6 +101,8 @@
       var draft = null;
       var busy = false;
       var controller = null;
+      var requestTimer = null;
+      var requestTimedOut = false;
       var stopAnimation = false;
       var toastTimer = null;
       var $ = function (id) { return document.getElementById(id); };
@@ -556,10 +558,16 @@
           ],
           stream: true,
           temperature: .65,
-          max_tokens: 8000
+          max_tokens: 5000
         };
         if (jsonMode) body.response_format = { type: 'json_object' };
         var response;
+        if (requestTimer) clearTimeout(requestTimer);
+        requestTimedOut = false;
+        requestTimer = setTimeout(function () {
+          requestTimedOut = true;
+          if (controller) controller.abort();
+        }, 45000);
         try {
           response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
@@ -568,6 +576,7 @@
             signal: controller ? controller.signal : undefined
           });
         } catch (error) {
+          if (requestTimedOut) throw new Error('OpenRouter не ответил за 45 секунд. Попробуй другую модель или повтори запрос позже.');
           if (error && error.name === 'AbortError') throw new Error('Запрос отменён');
           throw new Error('Не удалось подключиться к OpenRouter. Если файл открыт напрямую, попробуй открыть его через локальный сервер.');
         }
@@ -658,6 +667,10 @@
             toast(message || 'Что-то пошло не так', true);
           }
         } finally {
+          if (requestTimer) {
+            clearTimeout(requestTimer);
+            requestTimer = null;
+          }
           controller = null;
           setBusy(false);
         }
