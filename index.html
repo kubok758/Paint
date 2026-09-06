@@ -101,6 +101,7 @@
       var draft = null;
       var busy = false;
       var activeControllers = [];
+      var RACE_IDLE_TIMEOUT = 120000;
       var stopAnimation = false;
       var toastTimer = null;
       var $ = function (id) { return document.getElementById(id); };
@@ -702,13 +703,18 @@
       function runTimedAttempt(task, attemptController, model) {
         return new Promise(function (resolve, reject) {
           var settled = false;
-          var timer = setTimeout(function () {
-            if (settled) return;
-            settled = true;
-            attemptController.abort();
-            reject(new Error('Модель ' + model + ' не ответила за 45 секунд'));
-          }, 45000);
-          Promise.resolve().then(task).then(function (value) {
+          var timer = null;
+          var armIdleTimer = function () {
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+              if (settled) return;
+              settled = true;
+              attemptController.abort();
+              reject(new Error('Модель ' + model + ' не присылала данные ' + Math.round(RACE_IDLE_TIMEOUT / 1000) + ' секунд'));
+            }, RACE_IDLE_TIMEOUT);
+          };
+          armIdleTimer();
+          Promise.resolve().then(function () { return task(armIdleTimer); }).then(function (value) {
             if (settled) return;
             settled = true;
             clearTimeout(timer);
@@ -724,7 +730,12 @@
 
       async function attemptModel(key, model, prompt, attemptController, onChunk, onComplete) {
         var run = function (jsonMode) {
-          return runTimedAttempt(function () { return streamPlan(key, model, prompt, jsonMode, attemptController.signal, onChunk); }, attemptController, model);
+          return runTimedAttempt(function (onActivity) {
+            return streamPlan(key, model, prompt, jsonMode, attemptController.signal, function (text) {
+              onActivity();
+              if (onChunk) onChunk(text);
+            });
+          }, attemptController, model);
         };
         var answer;
         try {
