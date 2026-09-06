@@ -1,4 +1,4 @@
-const CACHE_NAME = "paint-ai-v3";
+const CACHE_NAME = "paint-ai-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -43,4 +43,3 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-
