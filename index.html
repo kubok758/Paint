@@ -24,7 +24,7 @@
     main{max-width:1700px;margin:auto;padding:16px;display:grid;grid-template-columns:230px minmax(420px,1fr) 350px;gap:13px}.panel{min-width:0;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#1a1f2aee,#10131aee);box-shadow:0 16px 50px #0004}.side{padding:14px;align-self:start}.heading{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.13em;font-weight:800}.note{color:#6c788a;font-size:10px;letter-spacing:0;text-transform:none;font-weight:500}
     .tools{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:7px}.tool{min-height:65px;border:1px solid transparent;border-radius:9px;background:#ffffff05;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.tool:hover{background:#ffffff0b;color:var(--text)}.tool.active{background:var(--accent);color:#111;border-color:#d3ff9d}.tool i{font-style:normal;font-size:20px;line-height:1}.tool span{font-size:11px;font-weight:650}.sep{height:1px;background:var(--line);margin:14px 0}.label{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:7px}.color-line{display:flex;gap:9px;align-items:center;padding:7px;border:1px solid var(--line);border-radius:9px;background:#0002}.color{width:31px;height:31px;border:0;padding:0;border-radius:7px}.hex{font:12px monospace}.palette{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:8px}.swatch{aspect-ratio:1;border:2px solid transparent;border-radius:5px;box-shadow:inset 0 0 0 1px #fff2}.swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px #a9e66b33}input[type=range]{width:100%;accent-color:var(--accent)}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.two .btn{font-size:12px;padding:0 6px}.shortcuts{display:grid;gap:8px;color:#6c788a;font-size:11px}.shortcut{display:flex;justify-content:space-between}kbd{border:1px solid #465267;border-bottom-width:2px;border-radius:4px;padding:1px 5px;font-size:10px}
     .workspace{min-width:0;min-height:640px;display:flex;flex-direction:column;gap:11px}.workspace-bar{min-height:46px;padding:0 13px;border:1px solid var(--line);border-radius:14px;background:#151922cc;display:flex;align-items:center;justify-content:space-between;gap:10px}.workspace-title{font-weight:750}.slash{color:var(--accent);margin-right:6px}.workspace-meta{color:#6c788a;font-size:10px;white-space:nowrap}.canvas-shell{min-height:0;flex:1;padding:clamp(12px,2.2vw,32px);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:repeating-conic-gradient(#11161e 0 25%,#0d1117 0 50%) 50%/20px 20px}.canvas-frame{position:relative;width:min(100%,960px);line-height:0;border:1px solid #fff2;border-radius:4px;background:#f8fafc;box-shadow:0 24px 65px #0007;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:900/650;touch-action:none;cursor:crosshair}.canvas-badge{position:absolute;right:9px;top:9px;padding:4px 6px;border-radius:4px;color:#17203399;background:#ffffffa8;font:10px monospace;line-height:1;pointer-events:none}.draw-hud{position:absolute;left:10px;top:10px;z-index:2;display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #79a8ff59;border-radius:999px;color:#f2f5f9;background:#0d1016dc;box-shadow:0 8px 24px #0004;backdrop-filter:blur(10px);font-size:10px;line-height:1;pointer-events:none}.draw-hud[hidden]{display:none}.draw-hud .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px #a9e66b22;animation:pulse 1.1s ease-in-out infinite}.canvas-footer{display:flex;justify-content:space-between;color:#6c788a;font-size:10px;padding:0 3px}.cursor{font:10px monospace;color:var(--muted)}
-    .ai{display:flex;flex-direction:column;gap:11px}.ai-head{display:flex;align-items:center;justify-content:space-between}.ai-title{font-weight:850;letter-spacing:.08em}.spark{color:var(--accent);font-size:17px;margin-right:5px}.badge{padding:4px 7px;border-radius:999px;border:1px solid #a9e66b44;color:#d3ff9d;background:#a9e66b0e;font-size:10px}.copy{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.input{width:100%;height:37px;padding:0 40px 0 10px;border:1px solid var(--line);border-radius:9px;outline:none;color:var(--text);background:#0003;font:11px monospace}.input:focus,.prompt:focus{border-color:#a9e66baa;box-shadow:0 0 0 3px #a9e66b14}.wrap{position:relative}.eye{position:absolute;right:4px;top:4px;width:29px;height:29px;border:0;border-radius:7px;background:transparent;color:var(--muted)}.remember{display:flex;gap:7px;align-items:center;color:#6c788a;font-size:11px;margin-top:6px}.remember input{accent-color:var(--accent)}.prompt-head{display:flex;justify-content:space-between;align-items:center}.example{border:0;background:transparent;color:#6c788a;font-size:10px}.example:hover{color:var(--accent)}.prompt{width:100%;min-height:105px;resize:vertical;padding:10px;border:1px solid var(--line);border-radius:9px;outline:none;color:var(--text);background:#0003;font-size:13px;line-height:1.45}.ai-actions{display:grid;grid-template-columns:1fr auto;gap:7px}.ai-actions .btn{min-height:42px}.progress{display:none;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0002}.progress.show{display:block}.progress-top{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.progress-top b{color:var(--text)}.track{height:6px;margin-top:8px;background:#27303d;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .15s}.speed{display:flex;align-items:center;gap:7px;color:#6c788a;font-size:10px;margin-top:8px}.speed input{flex:1}.speed b{width:47px;text-align:right;font-weight:500}.live,.steps{border:1px solid var(--line);border-radius:10px;background:#0d1016;overflow:hidden}.live-head{height:30px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em}.live-head span:last-child{text-transform:none;letter-spacing:0;color:#6c788a}.output{height:100px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0;padding:9px;color:#b8c2d1;font:10px/1.45 monospace}.steps{max-height:210px;min-height:110px;padding:7px;background:#0002;overflow:auto;overflow-anchor:none}.empty{min-height:94px;display:grid;place-items:center;text-align:center;color:#6c788a;font-size:11px;line-height:1.4;padding:10px}.step{min-height:27px;display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:6px;color:var(--muted);font-size:11px}.step.current{background:#79a8ff20;color:var(--text)}.step.done{color:#b8cf9d}.num{width:21px;text-align:right;color:#6c788a;font:10px monospace}.current .num{color:var(--blue)}.done .num{color:var(--accent)}.kind{padding:2px 5px;border:1px solid #fff1;border-radius:4px;color:var(--muted);background:#fff1;font:9px monospace}.desc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.api-note{padding:9px 10px;border-left:2px solid #465267;color:#6c788a;font-size:10px;line-height:1.45}.api-note a{color:var(--blue);text-decoration:none}.toast{position:fixed;left:50%;bottom:20px;z-index:9;max-width:calc(100vw - 30px);padding:10px 14px;border:1px solid #465267;border-radius:10px;background:#181e29f5;box-shadow:0 15px 40px #0008;opacity:0;pointer-events:none;transform:translate(-50%,10px);transition:.2s;font-size:12px}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:#a74e58;color:#ffe1e3}
+    .ai{display:flex;flex-direction:column;gap:11px}.ai-head{display:flex;align-items:center;justify-content:space-between}.ai-title{font-weight:850;letter-spacing:.08em}.spark{color:var(--accent);font-size:17px;margin-right:5px}.badge{padding:4px 7px;border-radius:999px;border:1px solid #a9e66b44;color:#d3ff9d;background:#a9e66b0e;font-size:10px}.copy{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.input{width:100%;height:37px;padding:0 40px 0 10px;border:1px solid var(--line);border-radius:9px;outline:none;color:var(--text);background:#0003;font:11px monospace}.input:focus,.prompt:focus{border-color:#a9e66baa;box-shadow:0 0 0 3px #a9e66b14}.wrap{position:relative}.eye{position:absolute;right:4px;top:4px;width:29px;height:29px;border:0;border-radius:7px;background:transparent;color:var(--muted)}.remember{display:flex;gap:7px;align-items:center;color:#6c788a;font-size:11px;margin-top:6px}.remember input{accent-color:var(--accent)}.prompt-head{display:flex;justify-content:space-between;align-items:center}.example{border:0;background:transparent;color:#6c788a;font-size:10px}.example:hover{color:var(--accent)}.prompt{width:100%;min-height:105px;resize:vertical;padding:10px;border:1px solid var(--line);border-radius:9px;outline:none;color:var(--text);background:#0003;font-size:13px;line-height:1.45}.ai-actions{display:grid;grid-template-columns:1fr auto;gap:7px}.ai-actions .btn{min-height:42px}.progress{display:none;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0002}.progress.show{display:block}.progress-top{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.progress-top b{color:var(--text)}.track{height:6px;margin-top:8px;background:#27303d;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .15s}.speed{display:flex;align-items:center;gap:7px;color:#6c788a;font-size:10px;margin-top:8px}.speed input{flex:1}.speed b{width:47px;text-align:right;font-weight:500}.live,.steps{border:1px solid var(--line);border-radius:10px;background:#0d1016;overflow:hidden}.live-head{height:30px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em}.live-head span:last-child{text-transform:none;letter-spacing:0;color:#6c788a}.race-grid{height:150px;padding:7px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:#0002;overflow:hidden;transition:grid-template-columns .24s}.race-grid[hidden]{display:none}.race-card{min-width:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:7px;background:#11151d;overflow:hidden;transition:opacity .24s,transform .24s}.race-card.loser{opacity:0;transform:scale(.96)}.race-grid.settling{grid-template-columns:1fr}.race-grid.settling .race-card.loser{display:none}.race-card.winner{grid-column:1/-1}.race-card-head{height:27px;min-width:0;padding:0 7px;display:flex;align-items:center;justify-content:space-between;gap:5px;border-bottom:1px solid var(--line);color:var(--muted);font-size:9px}.race-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.race-state{flex:none;color:#6c788a;font-size:8px}.race-card.winner .race-state{color:var(--accent)}.race-output{min-height:0;flex:1;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0;padding:7px;color:#b8c2d1;font:8px/1.35 monospace}.output{height:100px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0;padding:9px;color:#b8c2d1;font:10px/1.45 monospace}.output[hidden]{display:none}.steps{max-height:210px;min-height:110px;padding:7px;background:#0002;overflow:auto;overflow-anchor:none}.empty{min-height:94px;display:grid;place-items:center;text-align:center;color:#6c788a;font-size:11px;line-height:1.4;padding:10px}.step{min-height:27px;display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:6px;color:var(--muted);font-size:11px}.step.current{background:#79a8ff20;color:var(--text)}.step.done{color:#b8cf9d}.num{width:21px;text-align:right;color:#6c788a;font:10px monospace}.current .num{color:var(--blue)}.done .num{color:var(--accent)}.kind{padding:2px 5px;border:1px solid #fff1;border-radius:4px;color:var(--muted);background:#fff1;font:9px monospace}.desc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.api-note{padding:9px 10px;border-left:2px solid #465267;color:#6c788a;font-size:10px;line-height:1.45}.api-note a{color:var(--blue);text-decoration:none}.toast{position:fixed;left:50%;bottom:20px;z-index:9;max-width:calc(100vw - 30px);padding:10px 14px;border:1px solid #465267;border-radius:10px;background:#181e29f5;box-shadow:0 15px 40px #0008;opacity:0;pointer-events:none;transform:translate(-50%,10px);transition:.2s;font-size:12px}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:#a74e58;color:#ffe1e3}
     @media(max-width:1200px){main{grid-template-columns:210px minmax(380px,1fr) 315px;padding:12px}.top-center{display:none}}
     @media(max-width:930px){main{grid-template-columns:215px minmax(0,1fr)}.ai{grid-column:1/-1;display:grid;grid-template-columns:1fr 1.4fr 1fr}.ai-head,.ai>.copy,.api-note{grid-column:1/-1}.live,.steps{margin-top:28px}}
     @media(max-width:680px){.top{height:56px;padding:0 11px}.top-actions .btn:not(.primary){display:none}main{display:flex;flex-direction:column;padding:10px}.workspace{order:1;min-height:0}.side:first-of-type{order:2}.ai{order:3;display:flex}.canvas-shell{min-height:50vh;padding:10px}.tools{grid-template-columns:repeat(5,1fr)}.tool{min-height:59px}.tool span{font-size:10px}.shortcuts{display:none}.workspace-meta{display:none}}
@@ -73,7 +73,7 @@
       <div><div class="prompt-head"><label class="label" for="prompt" style="margin:0">Что нарисовать?</label><button class="example" id="example">подставить пример</button></div><textarea class="prompt" id="prompt">маленький домик у озера на закате, горы на заднем плане, уютный мультяшный стиль</textarea></div>
       <div class="ai-actions"><button class="btn primary" id="generate">✦ Сгенерировать и рисовать</button><button class="btn" id="demo">Демо</button></div>
       <div class="progress" id="progress"><div class="progress-top"><span id="progressLabel">Подготовка…</span><b id="progressCount">0 / 0</b></div><div class="track"><div class="bar" id="bar"></div></div><div class="speed"><span>медленнее</span><input id="speed" type="range" min="30" max="900" value="180"><span>быстрее</span><b id="speedValue">180 мс</b></div></div>
-      <div class="live"><div class="live-head"><span>Живой ответ модели</span><span id="liveState">ожидание</span></div><pre class="output" id="output">Здесь появится JSON‑план, пока модель его генерирует.</pre></div>
+      <div class="live" id="livePanel"><div class="live-head"><span>Живой ответ модели</span><span id="liveState">ожидание</span></div><div class="race-grid" id="raceGrid" hidden></div><pre class="output" id="output">Здесь появится JSON‑план, пока модель его генерирует.</pre></div>
       <div class="steps" id="steps"><div class="empty" id="empty">После генерации здесь появятся шаги рисования — фон, контуры, тени и детали.</div><div id="stepList"></div></div>
       <div class="api-note">Ключ используется только в запросе из этого браузера. При включённом «запомнить» он сохраняется в localStorage устройства. Не публикуй HTML с уже заполненным ключом.<br><br><a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">Получить ключ OpenRouter ↗</a></div>
     </aside>
@@ -117,6 +117,9 @@
       var empty = $('empty');
       var drawHud = $('drawHud');
       var drawHudText = $('drawHudText');
+      var livePanel = $('livePanel');
+      var raceGrid = $('raceGrid');
+      var raceCards = [];
 
       function clamp(n, min, max) {
         return Math.max(min, Math.min(max, n));
@@ -542,7 +545,83 @@
         return list;
       }
 
-      async function streamPlan(key, model, prompt, jsonMode, signal) {
+      function prepareRaceView(models) {
+        raceCards = [];
+        raceGrid.innerHTML = '';
+        raceGrid.hidden = false;
+        output.hidden = true;
+        livePanel.classList.remove('winner');
+        livePanel.classList.add('racing');
+        models.forEach(function (model, index) {
+          var card = document.createElement('div');
+          card.className = 'race-card';
+          var head = document.createElement('div');
+          head.className = 'race-card-head';
+          var name = document.createElement('span');
+          name.className = 'race-name';
+          name.title = model;
+          name.textContent = model + (models.filter(function (item) { return item === model; }).length > 1 ? ' #' + (index + 1) : '');
+          var state = document.createElement('span');
+          state.className = 'race-state';
+          state.textContent = 'ждём';
+          head.appendChild(name);
+          head.appendChild(state);
+          var stream = document.createElement('pre');
+          stream.className = 'race-output';
+          stream.textContent = 'ожидание…';
+          card.appendChild(head);
+          card.appendChild(stream);
+          raceGrid.appendChild(card);
+          raceCards.push({ card: card, state: state, stream: stream });
+        });
+      }
+
+      function updateRaceStream(index, text) {
+        var card = raceCards[index];
+        if (!card) return;
+        card.stream.textContent = text || 'ожидание…';
+        card.stream.scrollTop = card.stream.scrollHeight;
+        card.state.textContent = text ? 'пишет' : 'ждём';
+      }
+
+      function markRaceComplete(index) {
+        var card = raceCards[index];
+        if (card) card.state.textContent = 'готово';
+      }
+
+      function settleRaceView(index, answer) {
+        return new Promise(function (resolve) {
+          var winner = raceCards[index];
+          if (!winner) {
+            output.hidden = false;
+            output.textContent = answer;
+            resolve();
+            return;
+          }
+          raceCards.forEach(function (card, cardIndex) {
+            if (cardIndex === index) {
+              card.card.classList.add('winner');
+              card.state.textContent = 'победила';
+              card.stream.textContent = answer;
+            } else {
+              card.card.classList.add('loser');
+            }
+          });
+          raceGrid.classList.add('settling');
+          setTimeout(function () {
+            raceGrid.hidden = true;
+            raceGrid.classList.remove('settling');
+            output.hidden = false;
+            output.textContent = answer;
+            output.scrollTop = output.scrollHeight;
+            livePanel.classList.remove('racing');
+            livePanel.classList.add('winner');
+            resolve();
+          }, 280);
+        });
+      }
+
+      async function streamPlan(key, model, prompt, jsonMode, signal, onChunk) {
         var system = [
           'Ты — движок векторного рисования для HTML Paint.',
           'Преврати описание сцены в пошаговый план плоского 2D рисунка.',
@@ -581,7 +660,9 @@
         if (!response.ok) throw httpError(response, await response.text());
         if (!response.body) {
           var full = await response.json();
-          return String(full && full.choices && full.choices[0] && full.choices[0].message && full.choices[0].message.content || '');
+          var fullText = String(full && full.choices && full.choices[0] && full.choices[0].message && full.choices[0].message.content || '');
+          if (onChunk) onChunk(fullText);
+          return fullText;
         }
         var reader = response.body.getReader();
         var decoder = new TextDecoder();
@@ -609,7 +690,10 @@
             }
             var delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content;
             if (Array.isArray(delta)) delta = delta.map(function (part) { return part.text || ''; }).join('');
-            if (delta) text += delta;
+            if (delta) {
+              text += delta;
+              if (onChunk) onChunk(text);
+            }
           });
         }
         return text;
@@ -638,9 +722,9 @@
         });
       }
 
-      async function attemptModel(key, model, prompt, attemptController) {
+      async function attemptModel(key, model, prompt, attemptController, onChunk, onComplete) {
         var run = function (jsonMode) {
-          return runTimedAttempt(function () { return streamPlan(key, model, prompt, jsonMode, attemptController.signal); }, attemptController, model);
+          return runTimedAttempt(function () { return streamPlan(key, model, prompt, jsonMode, attemptController.signal, onChunk); }, attemptController, model);
         };
         var answer;
         try {
@@ -652,6 +736,7 @@
         }
         var plan = extractJSON(answer);
         normalizePlan(plan);
+        if (onComplete) onComplete();
         return { model: model, answer: answer, plan: plan };
       }
 
@@ -665,7 +750,14 @@
       function racePlans(key, models, prompt) {
         activeControllers = models.map(function () { return new AbortController(); });
         var attempts = models.map(function (model, index) {
-          return attemptModel(key, model, prompt, activeControllers[index]);
+          return attemptModel(key, model, prompt, activeControllers[index], function (text) {
+            updateRaceStream(index, text);
+          }, function () {
+            markRaceComplete(index);
+          }).then(function (result) {
+            result.index = index;
+            return result;
+          });
         });
         return new Promise(function (resolve, reject) {
           var remaining = attempts.length;
@@ -703,6 +795,7 @@
         progressCount.textContent = models.length + ' потока';
         bar.style.width = '3%';
         output.textContent = '';
+        prepareRaceView(models);
         liveState.textContent = 'гонка · ' + models.length + ' моделей';
         empty.style.display = 'grid';
         stepList.innerHTML = '';
@@ -710,9 +803,8 @@
         try {
           var winner = await racePlans(key, models, prompt);
           if (stopAnimation) throw new Error('Рисование остановлено');
-          output.textContent = winner.answer;
-          output.scrollTop = output.scrollHeight;
           liveState.textContent = 'победила: ' + winner.model;
+          await settleRaceView(winner.index, JSON.stringify(winner.plan, null, 2));
           await animate(winner.plan, 'OpenRouter · ' + winner.model);
           toast('AI‑рисунок готов · ответила ' + winner.model);
         } catch (error) {
@@ -769,6 +861,9 @@
       async function runDemo() {
         if (busy) return;
         setBusy(true);
+        raceGrid.hidden = true;
+        output.hidden = false;
+        livePanel.classList.remove('racing', 'winner');
         output.textContent = JSON.stringify(demoPlan(), null, 2);
         liveState.textContent = 'локальный план';
         try {
