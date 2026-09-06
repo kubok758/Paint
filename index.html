@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PAINT//AI</title>
+  <style>
+    :root{--bg:#0b0d12;--panel:#151922;--panel2:#1d2430;--line:#2b3443;--text:#f2f5f9;--muted:#9aa6b7;--accent:#a9e66b;--blue:#79a8ff;--danger:#ff7e84}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(circle at 5% 0,#1a2a42 0,transparent 34rem),var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}
+    button,input,textarea{font:inherit}button{cursor:pointer;color:inherit}
+    .top{height:64px;padding:0 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;background:#0b0d12d9;backdrop-filter:blur(16px);position:sticky;top:0;z-index:3}
+    .brand{display:flex;align-items:center;gap:10px}.mark{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:var(--accent);color:#111;font-weight:900;font-size:19px}.brand strong{letter-spacing:.14em}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+    .top-center{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);margin-right:7px}.dot.busy{background:var(--blue);box-shadow:0 0 12px var(--blue)}.dot.error{background:var(--danger);box-shadow:0 0 12px var(--danger)}
+    .top-actions{display:flex;gap:7px}.btn{min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);transition:.15s}.btn:hover:not(:disabled){border-color:#56657b;transform:translateY(-1px)}.btn.primary{color:#10150c;background:var(--accent);border-color:var(--accent);font-weight:800}.btn.primary:hover:not(:disabled){background:#d3ff9d}.btn.danger{color:#ffe3e5;border-color:#a74e58;background:#54232a}.btn:disabled{opacity:.45;cursor:not-allowed}
+    main{max-width:1700px;margin:auto;padding:16px;display:grid;grid-template-columns:230px minmax(420px,1fr) 350px;gap:13px}.panel{min-width:0;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#1a1f2aee,#10131aee);box-shadow:0 16px 50px #0004}.side{padding:14px;align-self:start}.heading{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.13em;font-weight:800}.note{color:#6c788a;font-size:10px;letter-spacing:0;text-transform:none;font-weight:500}
+    .tools{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:7px}.tool{min-height:65px;border:1px solid transparent;border-radius:9px;background:#ffffff05;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}.tool:hover{background:#ffffff0b;color:var(--text)}.tool.active{background:var(--accent);color:#111;border-color:#d3ff9d}.tool i{font-style:normal;font-size:20px;line-height:1}.tool span{font-size:11px;font-weight:650}.sep{height:1px;background:var(--line);margin:14px 0}.label{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:7px}.color-line{display:flex;gap:9px;align-items:center;padding:7px;border:1px solid var(--line);border-radius:9px;background:#0002}.color{width:31px;height:31px;border:0;padding:0;border-radius:7px}.hex{font:12px monospace}.palette{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:8px}.swatch{aspect-ratio:1;border:2px solid transparent;border-radius:5px;box-shadow:inset 0 0 0 1px #fff2}.swatch.active{border-color:var(--accent);box-shadow:0 0 0 2px #a9e66b33}input[type=range]{width:100%;accent-color:var(--accent)}.two{display:grid;grid-template-columns:1fr 1fr;gap:7px}.two .btn{font-size:12px;padding:0 6px}.shortcuts{display:grid;gap:8px;color:#6c788a;font-size:11px}.shortcut{display:flex;justify-content:space-between}kbd{border:1px solid #465267;border-bottom-width:2px;border-radius:4px;padding:1px 5px;font-size:10px}
+    .workspace{min-width:0;min-height:640px;display:flex;flex-direction:column;gap:11px}.workspace-bar{min-height:46px;padding:0 13px;border:1px solid var(--line);border-radius:14px;background:#151922cc;display:flex;align-items:center;justify-content:space-between;gap:10px}.workspace-title{font-weight:750}.slash{color:var(--accent);margin-right:6px}.workspace-meta{color:#6c788a;font-size:10px;white-space:nowrap}.canvas-shell{min-height:0;flex:1;padding:clamp(12px,2.2vw,32px);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:repeating-conic-gradient(#11161e 0 25%,#0d1117 0 50%) 50%/20px 20px}.canvas-frame{position:relative;width:min(100%,960px);line-height:0;border:1px solid #fff2;border-radius:4px;background:#f8fafc;box-shadow:0 24px 65px #0007;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:900/650;touch-action:none;cursor:crosshair}.canvas-badge{position:absolute;right:9px;top:9px;padding:4px 6px;border-radius:4px;color:#17203399;background:#ffffffa8;font:10px monospace;line-height:1;pointer-events:none}.canvas-footer{display:flex;justify-content:space-between;color:#6c788a;font-size:10px;padding:0 3px}.cursor{font:10px monospace;color:var(--muted)}
+    .ai{display:flex;flex-direction:column;gap:11px}.ai-head{display:flex;align-items:center;justify-content:space-between}.ai-title{font-weight:850;letter-spacing:.08em}.spark{color:var(--accent);font-size:17px;margin-right:5px}.badge{padding:4px 7px;border-radius:999px;border:1px solid #a9e66b44;color:#d3ff9d;background:#a9e66b0e;font-size:10px}.copy{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.input{width:100%;height:37px;padding:0 40px 0 10px;border:1px solid var(--line);border-radius:9px;outline:none;color:var(--text);background:#0003;font:11px monospace}.input:focus,.prompt:focus{border-color:#a9e66baa;box-shadow:0 0 0 3px #a9e66b14}.wrap{position:relative}.eye{position:absolute;right:4px;top:4px;width:29px;height:29px;border:0;border-radius:7px;background:transparent;color:var(--muted)}.remember{display:flex;gap:7px;align-items:center;color:#6c788a;font-size:11px;margin-top:6px}.remember input{accent-color:var(--accent)}.prompt-head{display:flex;justify-content:space-between;align-items:center}.example{border:0;background:transparent;color:#6c788a;font-size:10px}.example:hover{color:var(--accent)}.prompt{width:100%;min-height:105px;resize:vertical;padding:10px;border:1px solid var(--line);border-radius:9px;outline:none;color:var(--text);background:#0003;font-size:13px;line-height:1.45}.ai-actions{display:grid;grid-template-columns:1fr auto;gap:7px}.ai-actions .btn{min-height:42px}.progress{display:none;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0002}.progress.show{display:block}.progress-top{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.progress-top b{color:var(--text)}.track{height:6px;margin-top:8px;background:#27303d;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .15s}.speed{display:flex;align-items:center;gap:7px;color:#6c788a;font-size:10px;margin-top:8px}.speed input{flex:1}.speed b{width:47px;text-align:right;font-weight:500}.live,.steps{border:1px solid var(--line);border-radius:10px;background:#0d1016;overflow:hidden}.live-head{height:30px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em}.live-head span:last-child{text-transform:none;letter-spacing:0;color:#6c788a}.output{height:100px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0;padding:9px;color:#b8c2d1;font:10px/1.45 monospace}.steps{max-height:210px;min-height:110px;padding:7px;background:#0002;overflow:auto}.empty{min-height:94px;display:grid;place-items:center;text-align:center;color:#6c788a;font-size:11px;line-height:1.4;padding:10px}.step{min-height:27px;display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:6px;color:var(--muted);font-size:11px}.step.current{background:#79a8ff20;color:var(--text)}.step.done{color:#b8cf9d}.num{width:21px;text-align:right;color:#6c788a;font:10px monospace}.current .num{color:var(--blue)}.done .num{color:var(--accent)}.kind{padding:2px 5px;border:1px solid #fff1;border-radius:4px;color:var(--muted);background:#fff1;font:9px monospace}.desc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.api-note{padding:9px 10px;border-left:2px solid #465267;color:#6c788a;font-size:10px;line-height:1.45}.api-note a{color:var(--blue);text-decoration:none}.toast{position:fixed;left:50%;bottom:20px;z-index:9;max-width:calc(100vw - 30px);padding:10px 14px;border:1px solid #465267;border-radius:10px;background:#181e29f5;box-shadow:0 15px 40px #0008;opacity:0;pointer-events:none;transform:translate(-50%,10px);transition:.2s;font-size:12px}.toast.show{opacity:1;transform:translate(-50%,0)}.toast.error{border-color:#a74e58;color:#ffe1e3}
+    @media(max-width:1200px){main{grid-template-columns:210px minmax(380px,1fr) 315px;padding:12px}.top-center{display:none}}
+    @media(max-width:930px){main{grid-template-columns:215px minmax(0,1fr)}.ai{grid-column:1/-1;display:grid;grid-template-columns:1fr 1.4fr 1fr}.ai-head,.ai>.copy,.api-note{grid-column:1/-1}.live,.steps{margin-top:28px}}
+    @media(max-width:680px){.top{height:56px;padding:0 11px}.top-actions .btn:not(.primary){display:none}main{display:flex;flex-direction:column;padding:10px}.workspace{order:1;min-height:0}.side:first-of-type{order:2}.ai{order:3;display:flex}.canvas-shell{min-height:50vh;padding:10px}.tools{grid-template-columns:repeat(5,1fr)}.tool{min-height:59px}.tool span{font-size:10px}.shortcuts{display:none}.workspace-meta{display:none}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><div class="mark">✦</div><div><strong>PAINT<span style="color:var(--accent)">//AI</span></strong><small>рисуй руками и словами</small></div></div>
+    <div class="top-center"><span class="dot" id="statusDot"></span><span id="statusText">холст готов</span></div>
+    <div class="top-actions"><button class="btn" id="undoTop">↶</button><button class="btn" id="redoTop">↷</button><button class="btn primary" id="downloadTop">↓ PNG</button></div>
+  </header>
+  <main>
+    <aside class="panel side" id="toolsPanel">
+      <div class="heading"><span>Инструменты</span><span class="note" id="toolLabel">карандаш</span></div>
+      <div class="tools">
+        <button class="tool active" data-tool="pencil"><i>✎</i><span>Карандаш</span></button>
+        <button class="tool" data-tool="line"><i>╱</i><span>Линия</span></button>
+        <button class="tool" data-tool="rect"><i>□</i><span>Прямоугольник</span></button>
+        <button class="tool" data-tool="ellipse"><i>○</i><span>Эллипс</span></button>
+        <button class="tool" data-tool="eraser"><i>▱</i><span>Ластик</span></button>
+      </div>
+      <div class="sep"></div>
+      <label class="label" for="colorPicker">Цвет <output id="colorValue">#111827</output></label>
+      <div class="color-line"><input class="color" id="colorPicker" type="color" value="#111827"><span class="hex" id="colorValueBig">#111827</span></div>
+      <div class="palette">
+        <button class="swatch active" data-color="#111827" style="background:#111827"></button><button class="swatch" data-color="#f8fafc" style="background:#f8fafc"></button><button class="swatch" data-color="#ef4444" style="background:#ef4444"></button><button class="swatch" data-color="#f97316" style="background:#f97316"></button><button class="swatch" data-color="#facc15" style="background:#facc15"></button><button class="swatch" data-color="#a9e66b" style="background:#a9e66b"></button><button class="swatch" data-color="#22c55e" style="background:#22c55e"></button><button class="swatch" data-color="#38bdf8" style="background:#38bdf8"></button><button class="swatch" data-color="#6366f1" style="background:#6366f1"></button><button class="swatch" data-color="#a855f7" style="background:#a855f7"></button><button class="swatch" data-color="#ec4899" style="background:#ec4899"></button><button class="swatch" data-color="#8b5e3c" style="background:#8b5e3c"></button><button class="swatch" data-color="#64748b" style="background:#64748b"></button><button class="swatch" data-color="#0f172a" style="background:#0f172a"></button><button class="swatch" data-color="#ffffff" style="background:#fff"></button><button class="swatch" data-color="#000000" style="background:#000"></button>
+      </div>
+      <div class="sep"></div>
+      <label class="label" for="brushSize">Толщина <output><span id="brushValue">8</span> px</output></label><input id="brushSize" type="range" min="1" max="80" value="8">
+      <div class="sep"></div>
+      <div class="two"><button class="btn" id="importButton">＋ Открыть</button><button class="btn" id="clearButton">⌫ Очистить</button></div>
+      <div class="two" style="margin-top:7px"><button class="btn" id="undoButton">↶ Отменить</button><button class="btn" id="redoButton">↷ Повторить</button></div>
+      <div class="sep"></div>
+      <div class="shortcuts"><div class="shortcut"><span>Отмена</span><kbd>Ctrl Z</kbd></div><div class="shortcut"><span>Повтор</span><kbd>Ctrl Y</kbd></div><div class="shortcut"><span>Размер кисти</span><kbd>[ ]</kbd></div></div>
+    </aside>
+    <section class="workspace">
+      <div class="workspace-bar"><div class="workspace-title"><span class="slash">/</span>Холст <span style="color:#6c788a;font-weight:500" id="activeToolText">· Карандаш</span></div><div class="workspace-meta">прозрачность поддерживается · 900 × 650</div></div>
+      <div class="canvas-shell"><div class="canvas-frame"><canvas id="canvas" width="1800" height="1300"></canvas><div class="canvas-badge">900 × 650</div></div></div>
+      <div class="canvas-footer"><span>Нарисуй сам или опиши сцену справа — AI воспроизведёт её по шагам.</span><span class="cursor" id="cursor">x: — &nbsp; y: —</span></div>
+    </section>
+    <aside class="panel side ai">
+      <div class="ai-head"><div class="ai-title"><span class="spark">✦</span>AI РИСОВАНИЕ</div><span class="badge">OpenRouter</span></div>
+      <p class="copy">Опиши, что должно быть на картинке. Модель составит план из линий и фигур, а холст покажет его вживую.</p>
+      <div><label class="label" for="apiKey">API‑ключ OpenRouter <span class="note">не нужен для демо</span></label><div class="wrap"><input class="input" id="apiKey" type="password" autocomplete="off" placeholder="sk-or-v1-..." spellcheck="false"><button class="eye" id="toggleKey">◉</button></div><label class="remember"><input id="rememberKey" type="checkbox">Запомнить ключ на этом устройстве</label></div>
+      <div><label class="label" for="model">Модель</label><input class="input" id="model" type="text" value="openrouter/free" spellcheck="false"></div>
+      <div><div class="prompt-head"><label class="label" for="prompt" style="margin:0">Что нарисовать?</label><button class="example" id="example">подставить пример</button></div><textarea class="prompt" id="prompt">маленький домик у озера на закате, горы на заднем плане, уютный мультяшный стиль</textarea></div>
+      <div class="ai-actions"><button class="btn primary" id="generate">✦ Сгенерировать и рисовать</button><button class="btn" id="demo">Демо</button></div>
+      <div class="progress" id="progress"><div class="progress-top"><span id="progressLabel">Подготовка…</span><b id="progressCount">0 / 0</b></div><div class="track"><div class="bar" id="bar"></div></div><div class="speed"><span>медленнее</span><input id="speed" type="range" min="30" max="900" value="180"><span>быстрее</span><b id="speedValue">180 мс</b></div></div>
+      <div class="live"><div class="live-head"><span>Живой ответ модели</span><span id="liveState">ожидание</span></div><pre class="output" id="output">Здесь появится JSON‑план, пока модель его генерирует.</pre></div>
+      <div class="steps" id="steps"><div class="empty" id="empty">После генерации здесь появятся шаги рисования — фон, контуры, тени и детали.</div><div id="stepList"></div></div>
+      <div class="api-note">Ключ используется только в запросе из этого браузера. При включённом «запомнить» он сохраняется в localStorage устройства. Не публикуй HTML с уже заполненным ключом.<br><br><a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer">Получить ключ OpenRouter ↗</a></div>
+    </aside>
+  </main>
+  <footer style="padding:0 20px 15px;text-align:center;color:#6c788a;font-size:10px">PAINT//AI · ручной холст + пошаговая генерация</footer>
+  <input id="fileInput" type="file" accept="image/*" hidden><div class="toast" id="toast"></div>
+  <script>
+    (function () {
+      'use strict';
+      var W = 900;
+      var H = 650;
+      var canvas = document.getElementById('canvas');
+      var ctx = canvas.getContext('2d', { willReadFrequently: true });
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var tool = 'pencil';
+      var color = '#111827';
+      var brush = 8;
+      var opacity = 1;
+      var bg = '#f8fafc';
+      var undoStack = [];
+      var redoStack = [];
+      var drawing = false;
+      var start = null;
+      var last = null;
+      var draft = null;
+      var busy = false;
+      var controller = null;
+      var stopAnimation = false;
+      var toastTimer = null;
+      var $ = function (id) { return document.getElementById(id); };
+      var statusText = $('statusText');
+      var statusDot = $('statusDot');
+      var output = $('output');
+      var liveState = $('liveState');
+      var progress = $('progress');
+      var progressLabel = $('progressLabel');
+      var progressCount = $('progressCount');
+      var bar = $('bar');
+      var speed = $('speed');
+      var stepList = $('stepList');
+      var empty = $('empty');
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function number(value, fallback) {
+        var n = Number(value);
+        return Number.isFinite(n) ? n : fallback;
+      }
+
+      function norm(value, fallback) {
+        return clamp(number(value, fallback), 0, 1);
+      }
+
+      function cssColor(value, fallback) {
+        if (typeof value !== 'string') return fallback;
+        var v = value.trim();
+        if (/^#[0-9a-f]{3,8}$/i.test(v)) return v;
+        if (/^(rgb|hsl)a?\\([^\\n]+\\)$/i.test(v)) return v;
+        if (/^[a-z]{3,20}$/i.test(v)) return v;
+        return fallback;
+      }
+
+      function point(value) {
+        if (Array.isArray(value)) return { x: norm(value[0], 0) * W, y: norm(value[1], 0) * H };
+        if (value && typeof value === 'object') return { x: norm(value.x, 0) * W, y: norm(value.y, 0) * H };
+        return { x: 0, y: 0 };
+      }
+
+      function setupCanvas() {
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        fillBackground(bg);
+      }
+
+      function fillBackground(value) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = value;
+        ctx.fillRect(0, 0, W, H);
+        ctx.restore();
+      }
+
+      function setStatus(text, kind) {
+        statusText.textContent = text;
+        statusDot.className = 'dot' + (kind ? ' ' + kind : '');
+      }
+
+      function toast(message, error) {
+        clearTimeout(toastTimer);
+        $('toast').textContent = message;
+        $('toast').className = 'toast show' + (error ? ' error' : '');
+        toastTimer = setTimeout(function () { $('toast').className = 'toast'; }, 3600);
+      }
+
+      function updateHistoryButtons() {
+        $('undoButton').disabled = busy || !undoStack.length;
+        $('redoButton').disabled = busy || !redoStack.length;
+        $('undoTop').disabled = busy || !undoStack.length;
+        $('redoTop').disabled = busy || !redoStack.length;
+      }
+
+      function saveUndo() {
+        undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        if (undoStack.length > 28) undoStack.shift();
+        redoStack = [];
+        updateHistoryButtons();
+      }
+
+      function undo() {
+        if (busy || !undoStack.length) return;
+        redoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        ctx.putImageData(undoStack.pop(), 0, 0);
+        updateHistoryButtons();
+        setStatus('изменение отменено');
+      }
+
+      function redo() {
+        if (busy || !redoStack.length) return;
+        undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        ctx.putImageData(redoStack.pop(), 0, 0);
+        updateHistoryButtons();
+        setStatus('изменение повторено');
+      }
+
+      function setTool(next) {
+        tool = next;
+        document.querySelectorAll('[data-tool]').forEach(function (button) {
+          button.classList.toggle('active', button.getAttribute('data-tool') === next);
+        });
+        var names = { pencil: 'Карандаш', line: 'Линия', rect: 'Прямоугольник', ellipse: 'Эллипс', eraser: 'Ластик' };
+        $('toolLabel').textContent = names[next].toLowerCase();
+        $('activeToolText').textContent = '· ' + names[next];
+        canvas.style.cursor = next === 'eraser' ? 'cell' : 'crosshair';
+      }
+
+      function setColor(next) {
+        color = cssColor(next, '#111827');
+        if (/^#[0-9a-f]{6}$/i.test(color)) $('colorPicker').value = color;
+        $('colorValue').textContent = color.toUpperCase();
+        $('colorValueBig').textContent = color.toUpperCase();
+        document.querySelectorAll('[data-color]').forEach(function (button) {
+          button.classList.toggle('active', button.getAttribute('data-color').toLowerCase() === color.toLowerCase());
+        });
+      }
+
+      function pointer(event) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: clamp((event.clientX - rect.left) * W / rect.width, 0, W),
+          y: clamp((event.clientY - rect.top) * H / rect.height, 0, H)
+        };
+      }
+
+      function segment(a, b, eraser) {
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        ctx.globalCompositeOperation = eraser ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = eraser ? '#000' : color;
+        ctx.lineWidth = brush;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function shape(kind, a, b) {
+        var x = Math.min(a.x, b.x);
+        var y = Math.min(a.y, b.y);
+        var w = Math.abs(b.x - a.x);
+        var h = Math.abs(b.y - a.y);
+        ctx.save();
+        ctx.globalAlpha = opacity;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = brush;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        if (kind === 'line') {
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+        } else if (kind === 'rect') {
+          ctx.rect(x, y, w, h);
+        } else {
+          ctx.ellipse(x + w / 2, y + h / 2, Math.max(1, w / 2), Math.max(1, h / 2), 0, 0, Math.PI * 2);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function down(event) {
+        if (busy) return;
+        event.preventDefault();
+        canvas.setPointerCapture(event.pointerId);
+        drawing = true;
+        start = pointer(event);
+        last = start;
+        draft = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        saveUndo();
+        if (tool === 'pencil' || tool === 'eraser') segment(start, { x: start.x + .01, y: start.y + .01 }, tool === 'eraser');
+      }
+
+      function move(event) {
+        var p = pointer(event);
+        $('cursor').textContent = 'x: ' + Math.round(p.x) + '   y: ' + Math.round(p.y);
+        if (!drawing || busy) return;
+        event.preventDefault();
+        if (tool === 'pencil' || tool === 'eraser') {
+          segment(last, p, tool === 'eraser');
+        } else {
+          ctx.putImageData(draft, 0, 0);
+          shape(tool, start, p);
+        }
+        last = p;
+      }
+
+      function up(event) {
+        if (!drawing) return;
+        drawing = false;
+        try { canvas.releasePointerCapture(event.pointerId); } catch (e) {}
+        draft = null;
+        setStatus('холст готов');
+      }
+
+      function clearCanvas() {
+        if (busy) return;
+        saveUndo();
+        ctx.clearRect(0, 0, W, H);
+        setStatus('холст очищен');
+      }
+
+      function download() {
+        var link = document.createElement('a');
+        link.download = 'paint-ai-' + new Date().toISOString().slice(0, 10) + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        toast('PNG сохранён');
+      }
+
+      function importImage(file) {
+        if (!file || busy) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          var image = new Image();
+          image.onload = function () {
+            saveUndo();
+            ctx.save();
+            ctx.clearRect(0, 0, W, H);
+            var scale = Math.min(W / image.width, H / image.height);
+            var width = image.width * scale;
+            var height = image.height * scale;
+            ctx.drawImage(image, (W - width) / 2, (H - height) / 2, width, height);
+            ctx.restore();
+            setStatus('изображение открыто');
+            toast('Изображение добавлено на холст');
+          };
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function readPoints(value) {
+        return Array.isArray(value) ? value.map(point) : [];
+      }
+
+      function drawAI(step) {
+        var kind = String(step.kind || step.type || 'stroke').toLowerCase();
+        var stroke = cssColor(step.stroke || step.color, '#172033');
+        var fill = step.fill && step.fill !== true ? cssColor(step.fill, null) : null;
+        var lineWidth = clamp(number(step.width, .006), .001, .08) * Math.min(W, H);
+        var alpha = clamp(number(step.opacity, 1), .05, 1);
+        var from = point(step.from || step.start || [step.x, step.y]);
+        var to = point(step.to || step.end || [number(step.x, 0) + number(step.w, 0), number(step.y, 0) + number(step.h, 0)]);
+        var points = readPoints(step.points || step.path);
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = stroke;
+        if (kind === 'background') {
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = cssColor(step.color || step.fill, bg);
+          ctx.fillRect(0, 0, W, H);
+        } else if (kind === 'line') {
+          ctx.beginPath();
+          ctx.moveTo(from.x, from.y);
+          ctx.lineTo(to.x, to.y);
+          ctx.stroke();
+        } else if (kind === 'rect' || kind === 'rectangle') {
+          var rx = norm(step.x, 0) * W;
+          var ry = norm(step.y, 0) * H;
+          var rw = norm(step.w, .1) * W;
+          var rh = norm(step.h, .1) * H;
+          ctx.beginPath();
+          ctx.rect(rx, ry, rw, rh);
+          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+          if (step.stroke !== false && step.outline !== false) ctx.stroke();
+        } else if (kind === 'circle' || kind === 'ellipse' || kind === 'oval') {
+          var center = point([step.x, step.y]);
+          var radiusX = norm(step.rx || step.r || .08, .08) * W;
+          var radiusY = norm(step.ry || step.r || .08, .08) * H;
+          ctx.beginPath();
+          ctx.ellipse(center.x, center.y, radiusX, radiusY, 0, 0, Math.PI * 2);
+          if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+          if (step.stroke !== false && step.outline !== false) ctx.stroke();
+        } else if (kind === 'dot') {
+          var dot = point([step.x, step.y]);
+          var dotRadius = norm(step.r || .01, .01) * Math.min(W, H);
+          ctx.beginPath();
+          ctx.fillStyle = fill || stroke;
+          ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (kind === 'text') {
+          var textPoint = point([step.x, step.y]);
+          var fontSize = clamp(norm(step.fontSize || step.size || .04, .04) * H, 8, 140);
+          ctx.fillStyle = fill || stroke;
+          ctx.font = (step.bold ? '700 ' : '500 ') + fontSize + 'px Inter,system-ui,sans-serif';
+          ctx.textAlign = step.align || 'left';
+          ctx.fillText(String(step.text || step.label || ''), textPoint.x, textPoint.y);
+        } else {
+          if (points.length < 2) points = [from, to];
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          for (var i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y);
+          if ((kind === 'path' || kind === 'polygon') && step.closed) ctx.closePath();
+          if ((kind === 'path' || kind === 'polygon') && fill) { ctx.fillStyle = fill; ctx.fill(); }
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function stepName(step) {
+        var kind = String(step.kind || step.type || 'stroke').toLowerCase();
+        var names = { background: 'фон', rect: 'прямоугольник', rectangle: 'прямоугольник', circle: 'круг', ellipse: 'эллипс', oval: 'эллипс', line: 'линия', stroke: 'штрих', path: 'контур', polygon: 'форма', dot: 'точка', text: 'текст' };
+        return names[kind] || kind;
+      }
+
+      function stepDescription(step) {
+        var kind = String(step.kind || step.type || 'stroke').toLowerCase();
+        if (kind === 'text') return String(step.text || '').slice(0, 24);
+        if (kind === 'stroke' || kind === 'path' || kind === 'polygon') return (Array.isArray(step.points || step.path) ? (step.points || step.path).length : 0) + ' точек';
+        return 'рисуем слой';
+      }
+
+      function showSteps(steps) {
+        empty.style.display = 'none';
+        stepList.innerHTML = '';
+        steps.forEach(function (step, index) {
+          var item = document.createElement('div');
+          item.className = 'step';
+          item.id = 'step-' + index;
+          item.innerHTML = '<span class="num">' + String(index + 1).padStart(2, '0') + '</span><span class="kind">' + stepName(step) + '</span><span class="desc">' + stepDescription(step) + '</span>';
+          stepList.appendChild(item);
+        });
+      }
+
+      function markStep(index, total) {
+        var items = stepList.querySelectorAll('.step');
+        items.forEach(function (item, itemIndex) {
+          item.classList.toggle('current', itemIndex === index);
+          item.classList.toggle('done', itemIndex < index);
+        });
+        progressCount.textContent = Math.min(index + 1, total) + ' / ' + total;
+        bar.style.width = (total ? Math.round(index / total * 100) : 0) + '%';
+        if (items[index]) items[index].scrollIntoView({ block: 'nearest' });
+      }
+
+      function normalizePlan(raw) {
+        var plan = raw && typeof raw === 'object' ? raw : {};
+        var steps = Array.isArray(plan.steps) ? plan.steps.filter(function (item) { return item && typeof item === 'object'; }).slice(0, 80) : [];
+        if (!steps.length) throw new Error('Модель не вернула шаги рисования');
+        return { background: cssColor(plan.background, '#f8fafc'), steps: steps };
+      }
+
+      function wait(ms) {
+        return new Promise(function (resolve, reject) {
+          var timer = setTimeout(function () {
+            if (stopAnimation) reject(new Error('Рисование остановлено'));
+            else resolve();
+          }, ms);
+          if (stopAnimation) { clearTimeout(timer); reject(new Error('Рисование остановлено')); }
+        });
+      }
+
+      async function animate(raw, source) {
+        var plan = normalizePlan(raw);
+        undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        if (undoStack.length > 28) undoStack.shift();
+        redoStack = [];
+        updateHistoryButtons();
+        stopAnimation = false;
+        fillBackground(plan.background);
+        showSteps(plan.steps);
+        progress.classList.add('show');
+        progressLabel.textContent = source + ' · рисуем';
+        progressCount.textContent = '0 / ' + plan.steps.length;
+        bar.style.width = '0%';
+        setStatus('AI рисует', 'busy');
+        liveState.textContent = 'воспроизведение';
+        for (var i = 0; i < plan.steps.length; i += 1) {
+          if (stopAnimation) throw new Error('Рисование остановлено');
+          markStep(i, plan.steps.length);
+          drawAI(plan.steps[i]);
+          await wait(Number(speed.value));
+        }
+        markStep(plan.steps.length, plan.steps.length);
+        bar.style.width = '100%';
+        progressLabel.textContent = 'Готово';
+        liveState.textContent = 'готово';
+        setStatus('рисунок готов');
+      }
+
+      function extractJSON(text) {
+        var value = String(text || '').trim();
+        value = value.split(String.fromCharCode(96)).join('').trim().replace(/^json\s*/i, '').trim();
+        try { return JSON.parse(value); } catch (e) {}
+        var firstObject = value.indexOf('{');
+        var firstArray = value.indexOf('[');
+        var startIndex = firstObject < 0 ? firstArray : firstArray < 0 ? firstObject : Math.min(firstObject, firstArray);
+        var endIndex = Math.max(value.lastIndexOf('}'), value.lastIndexOf(']'));
+        if (startIndex < 0 || endIndex <= startIndex) throw new Error('Не найден JSON‑план в ответе модели');
+        return JSON.parse(value.slice(startIndex, endIndex + 1));
+      }
+
+      function httpError(response, text) {
+        var message = text;
+        try {
+          var parsed = JSON.parse(text);
+          message = parsed && parsed.error && (parsed.error.message || parsed.error.code) || text;
+        } catch (e) {}
+        var error = new Error('OpenRouter: ' + String(message || ('HTTP ' + response.status)).slice(0, 360));
+        error.status = response.status;
+        error.hasOutput = false;
+        return error;
+      }
+
+      async function streamPlan(key, model, prompt, jsonMode) {
+        var system = [
+          'Ты — движок векторного рисования для HTML Paint.',
+          'Преврати описание сцены в пошаговый план плоского 2D рисунка.',
+          'Отвечай только валидным JSON без Markdown, пояснений и комментариев.',
+          'Формат: {"background":"#RRGGBB","steps":[...]}',
+          'Каждый шаг использует нормированные координаты от 0 до 1.',
+          'Доступные kind: background, rect, circle, line, stroke, path, dot, text.',
+          'Для rect нужны x,y,w,h; для circle x,y,r; для line from,to; для stroke/path — points:[[x,y],...].',
+          'У фигур можно указывать fill, stroke, color, width, opacity; width — доля короткой стороны.',
+          'Рисуй сзади вперёд: фон, большие формы, контуры, тени, мелкие детали.',
+          'Используй 12–55 шагов, максимум 80. Не создавай сложные градиенты.'
+        ].join(' ');
+        var body = {
+          model: model || 'openrouter/free',
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: 'Нарисуй сцену: ' + prompt }
+          ],
+          stream: true,
+          temperature: .65,
+          max_tokens: 8000
+        };
+        if (jsonMode) body.response_format = { type: 'json_object' };
+        var response;
+        try {
+          response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json', 'X-OpenRouter-Title': 'PAINT//AI' },
+            body: JSON.stringify(body),
+            signal: controller ? controller.signal : undefined
+          });
+        } catch (error) {
+          if (error && error.name === 'AbortError') throw new Error('Запрос отменён');
+          throw new Error('Не удалось подключиться к OpenRouter. Если файл открыт напрямую, попробуй открыть его через локальный сервер.');
+        }
+        if (!response.ok) throw httpError(response, await response.text());
+        if (!response.body) {
+          var full = await response.json();
+          return String(full && full.choices && full.choices[0] && full.choices[0].message && full.choices[0].message.content || '');
+        }
+        var reader = response.body.getReader();
+        var decoder = new TextDecoder();
+        var buffer = '';
+        var text = '';
+        var done = false;
+        while (!done) {
+          var packet = await reader.read();
+          done = packet.done;
+          if (packet.value) buffer += decoder.decode(packet.value, { stream: !done });
+          var events = buffer.split(/\n\n/);
+          buffer = events.pop() || '';
+          events.forEach(function (event) {
+            var lines = event.split(/\n/).filter(function (line) { return line.indexOf('data:') === 0; });
+            if (!lines.length) return;
+            var data = lines.map(function (line) { return line.slice(5).trim(); }).join('\n');
+            if (!data || data === '[DONE]') return;
+            var chunk;
+            try { chunk = JSON.parse(data); } catch (e) { return; }
+            if (chunk.error) {
+              var streamError = new Error('OpenRouter: ' + (chunk.error.message || 'ошибка во время стрима'));
+              streamError.status = 500;
+              streamError.hasOutput = text.length > 0;
+              throw streamError;
+            }
+            var delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta && chunk.choices[0].delta.content;
+            if (Array.isArray(delta)) delta = delta.map(function (part) { return part.text || ''; }).join('');
+            if (delta) {
+              text += delta;
+              output.textContent = text;
+              output.scrollTop = output.scrollHeight;
+              liveState.textContent = 'получаю план…';
+            }
+          });
+        }
+        return text;
+      }
+
+      async function generate() {
+        var key = $('apiKey').value.trim();
+        var prompt = $('prompt').value.trim();
+        var model = $('model').value.trim() || 'openrouter/free';
+        if (!key) { toast('Введи API‑ключ OpenRouter или запусти «Демо».', true); $('apiKey').focus(); return; }
+        if (!prompt) { toast('Сначала напиши, что нарисовать.', true); $('prompt').focus(); return; }
+        setBusy(true);
+        controller = new AbortController();
+        stopAnimation = false;
+        progress.classList.add('show');
+        progressLabel.textContent = 'Модель строит план…';
+        progressCount.textContent = 'ожидание';
+        bar.style.width = '3%';
+        output.textContent = '';
+        liveState.textContent = 'подключение…';
+        empty.style.display = 'grid';
+        stepList.innerHTML = '';
+        setStatus('модель отвечает', 'busy');
+        try {
+          var answer;
+          try {
+            answer = await streamPlan(key, model, prompt, true);
+          } catch (error) {
+            var retry = error && error.status === 400 && !error.hasOutput && /json|response_format|format/i.test(error.message || '');
+            if (!retry) throw error;
+            liveState.textContent = 'совместимый режим…';
+            answer = await streamPlan(key, model, prompt, false);
+          }
+          var plan = extractJSON(answer);
+          output.textContent = JSON.stringify(plan, null, 2);
+          await animate(plan, 'OpenRouter');
+          toast('AI‑рисунок готов');
+        } catch (error) {
+          var message = String(error && error.message || '');
+          if (message.indexOf('остановлено') >= 0 || message.indexOf('отменён') >= 0) {
+            setStatus('остановлено');
+            liveState.textContent = 'остановлено';
+            toast('Рисование остановлено');
+          } else {
+            setStatus('ошибка', 'error');
+            liveState.textContent = 'ошибка';
+            toast(message || 'Что-то пошло не так', true);
+          }
+        } finally {
+          controller = null;
+          setBusy(false);
+        }
+      }
+
+      function demoPlan() {
+        return {
+          background: '#eaf2ff',
+          steps: [
+            { kind: 'rect', x: 0, y: 0, w: 1, h: 1, fill: '#eaf2ff', stroke: false },
+            { kind: 'circle', x: .82, y: .16, r: .085, fill: '#ffd166', stroke: '#e8a93b', width: .006 },
+            { kind: 'path', points: [[0,.62],[.15,.45],[.28,.57],[.42,.38],[.59,.56],[.76,.42],[1,.59],[1,1],[0,1]], closed: true, fill: '#94b3d6', stroke: '#6f8eb4', width: .005 },
+            { kind: 'path', points: [[0,.72],[.2,.55],[.38,.7],[.52,.5],[.7,.67],[.86,.53],[1,.68],[1,1],[0,1]], closed: true, fill: '#557aa3', stroke: '#45678d', width: .005 },
+            { kind: 'path', points: [[.06,.32],[.13,.28],[.2,.32],[.26,.29]], color: '#71859c', width: .008 },
+            { kind: 'path', points: [[.58,.25],[.66,.21],[.74,.25]], color: '#71859c', width: .008 },
+            { kind: 'rect', x: .31, y: .55, w: .28, h: .22, fill: '#f5c979', stroke: '#543f44', width: .008 },
+            { kind: 'path', points: [[.28,.56],[.45,.39],[.63,.56]], closed: true, fill: '#d95d57', stroke: '#543f44', width: .009 },
+            { kind: 'rect', x: .42, y: .65, w: .07, h: .12, fill: '#805a4d', stroke: '#543f44', width: .006 },
+            { kind: 'rect', x: .34, y: .62, w: .065, h: .065, fill: '#b8e8ee', stroke: '#543f44', width: .006 },
+            { kind: 'line', from: [.34,.652], to: [.405,.652], color: '#543f44', width: .004 },
+            { kind: 'line', from: [.3725,.62], to: [.3725,.685], color: '#543f44', width: .004 },
+            { kind: 'rect', x: .515, y: .62, w: .065, h: .065, fill: '#b8e8ee', stroke: '#543f44', width: .006 },
+            { kind: 'line', from: [.515,.652], to: [.58,.652], color: '#543f44', width: .004 },
+            { kind: 'line', from: [.5475,.62], to: [.5475,.685], color: '#543f44', width: .004 },
+            { kind: 'rect', x: .775, y: .67, w: .01, h: .19, fill: '#9b6847', stroke: false },
+            { kind: 'circle', x: .78, y: .6, r: .11, fill: '#75af78', stroke: '#4c865e', width: .006 },
+            { kind: 'circle', x: .7, y: .65, r: .07, fill: '#86bf84', stroke: '#4c865e', width: .005 },
+            { kind: 'circle', x: .87, y: .65, r: .07, fill: '#86bf84', stroke: '#4c865e', width: .005 },
+            { kind: 'path', points: [[.16,.82],[.24,.7],[.31,.79]], color: '#74a56d', width: .009 },
+            { kind: 'path', points: [[.16,.82],[.29,.86],[.39,.9],[.48,.94]], color: '#d3b28b', width: .032 },
+            { kind: 'path', points: [[.16,.82],[.29,.86],[.39,.9],[.48,.94]], color: '#fff0c9', width: .009 },
+            { kind: 'circle', x: .33, y: .51, r: .011, fill: '#ffe4a5', stroke: false },
+            { kind: 'circle', x: .57, y: .51, r: .011, fill: '#ffe4a5', stroke: false },
+            { kind: 'text', x: .055, y: .93, text: 'demo · AI steps', color: '#365778', fontSize: .026, bold: true }
+          ]
+        };
+      }
+
+      async function runDemo() {
+        if (busy) return;
+        setBusy(true);
+        output.textContent = JSON.stringify(demoPlan(), null, 2);
+        liveState.textContent = 'локальный план';
+        try {
+          await animate(demoPlan(), 'Демо');
+          toast('Демо завершено — попробуй свой промпт');
+        } catch (error) {
+          setStatus('остановлено');
+          toast('Демо остановлено');
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function stop() {
+        stopAnimation = true;
+        if (controller) controller.abort();
+      }
+
+      function setBusy(value) {
+        busy = value;
+        $('demo').disabled = value;
+        document.querySelectorAll('[data-tool]').forEach(function (button) { button.disabled = value; });
+        $('clearButton').disabled = value;
+        $('importButton').disabled = value;
+        if (value) {
+          $('generate').textContent = '■  Остановить';
+          $('generate').classList.remove('primary');
+          $('generate').classList.add('danger');
+          $('generate').disabled = false;
+        } else {
+          $('generate').textContent = '✦ Сгенерировать и рисовать';
+          $('generate').classList.remove('danger');
+          $('generate').classList.add('primary');
+        }
+        updateHistoryButtons();
+      }
+
+      function persistKey() {
+        try {
+          if ($('rememberKey').checked && $('apiKey').value.trim()) localStorage.setItem('paint-ai-openrouter-key', $('apiKey').value.trim());
+          else localStorage.removeItem('paint-ai-openrouter-key');
+        } catch (e) {}
+      }
+
+      document.querySelectorAll('[data-tool]').forEach(function (button) {
+        button.addEventListener('click', function () { setTool(button.getAttribute('data-tool')); });
+      });
+      document.querySelectorAll('[data-color]').forEach(function (button) {
+        button.addEventListener('click', function () { setColor(button.getAttribute('data-color')); });
+      });
+      $('colorPicker').addEventListener('input', function () { setColor($('colorPicker').value); });
+      $('brushSize').addEventListener('input', function () {
+        brush = Number($('brushSize').value);
+        $('brushValue').textContent = String(brush);
+      });
+      speed.addEventListener('input', function () { $('speedValue').textContent = speed.value + ' мс'; });
+      $('apiKey').addEventListener('input', persistKey);
+      $('rememberKey').addEventListener('change', persistKey);
+      $('toggleKey').addEventListener('click', function () {
+        $('apiKey').type = $('apiKey').type === 'password' ? 'text' : 'password';
+        $('toggleKey').textContent = $('apiKey').type === 'password' ? '◉' : '◌';
+      });
+      $('example').addEventListener('click', function () {
+        $('prompt').value = 'неоновый кот‑астронавт на крыше города, большая луна, яркие синие и розовые цвета, постерный стиль';
+        $('prompt').focus();
+      });
+      canvas.addEventListener('pointerdown', down);
+      canvas.addEventListener('pointermove', move);
+      canvas.addEventListener('pointerup', up);
+      canvas.addEventListener('pointercancel', up);
+      canvas.addEventListener('pointerleave', function () { if (!drawing) $('cursor').textContent = 'x: —   y: —'; });
+      $('undoButton').addEventListener('click', undo);
+      $('redoButton').addEventListener('click', redo);
+      $('undoTop').addEventListener('click', undo);
+      $('redoTop').addEventListener('click', redo);
+      $('clearButton').addEventListener('click', clearCanvas);
+      $('downloadTop').addEventListener('click', download);
+      $('importButton').addEventListener('click', function () { $('fileInput').click(); });
+      $('fileInput').addEventListener('change', function () {
+        importImage($('fileInput').files && $('fileInput').files[0]);
+        $('fileInput').value = '';
+      });
+      $('generate').addEventListener('click', function () { if (busy) stop(); else generate(); });
+      $('demo').addEventListener('click', runDemo);
+      document.addEventListener('keydown', function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+          event.preventDefault();
+          undo();
+        } else if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') {
+          event.preventDefault();
+          redo();
+        } else if (event.key === '[') {
+          brush = clamp(brush - 2, 1, 80);
+          $('brushSize').value = brush;
+          $('brushValue').textContent = String(brush);
+        } else if (event.key === ']') {
+          brush = clamp(brush + 2, 1, 80);
+          $('brushSize').value = brush;
+          $('brushValue').textContent = String(brush);
+        }
+      });
+
+      setupCanvas();
+      try {
+        var savedKey = localStorage.getItem('paint-ai-openrouter-key');
+        if (savedKey) {
+          $('apiKey').value = savedKey;
+          $('rememberKey').checked = true;
+        }
+      } catch (e) {}
+      setTool('pencil');
+      setColor(color);
+      updateHistoryButtons();
+    })();
+  </script>
+</body>
+</html>
