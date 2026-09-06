@@ -456,8 +456,10 @@
         var box = $('steps');
         var item = items[index];
         if (item) {
-          var top = item.offsetTop;
-          var bottom = top + item.offsetHeight;
+          var boxRect = box.getBoundingClientRect();
+          var itemRect = item.getBoundingClientRect();
+          var top = itemRect.top - boxRect.top + box.scrollTop;
+          var bottom = itemRect.bottom - boxRect.top + box.scrollTop;
           if (top < box.scrollTop) box.scrollTop = top;
           else if (bottom > box.scrollTop + box.clientHeight) box.scrollTop = bottom - box.clientHeight;
         }
