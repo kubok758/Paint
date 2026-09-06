@@ -3,6 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d12">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Paint AI">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
   <title>PAINT//AI</title>
   <style>
     :root{--bg:#0b0d12;--panel:#151922;--panel2:#1d2430;--line:#2b3443;--text:#f2f5f9;--muted:#9aa6b7;--accent:#a9e66b;--blue:#79a8ff;--danger:#ff7e84}
@@ -26,7 +34,7 @@
   <header class="top">
     <div class="brand"><div class="mark">✦</div><div><strong>PAINT<span style="color:var(--accent)">//AI</span></strong><small>рисуй руками и словами</small></div></div>
     <div class="top-center"><span class="dot" id="statusDot"></span><span id="statusText">холст готов</span></div>
-    <div class="top-actions"><button class="btn" id="undoTop">↶</button><button class="btn" id="redoTop">↷</button><button class="btn primary" id="downloadTop">↓ PNG</button></div>
+    <div class="top-actions"><button class="btn" id="undoTop">↶</button><button class="btn" id="redoTop">↷</button><button class="btn" id="installButton" hidden>＋ Установить</button><button class="btn primary" id="downloadTop">↓ PNG</button></div>
   </header>
   <main>
     <aside class="panel side" id="toolsPanel">
@@ -758,6 +766,31 @@
       });
       $('generate').addEventListener('click', function () { if (busy) stop(); else generate(); });
       $('demo').addEventListener('click', runDemo);
+      var installPrompt = null;
+      var installButton = $('installButton');
+      if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+        navigator.serviceWorker.register('./service-worker.js').catch(function () {});
+      }
+      window.addEventListener('beforeinstallprompt', function (event) {
+        event.preventDefault();
+        installPrompt = event;
+        installButton.hidden = false;
+      });
+      installButton.addEventListener('click', async function () {
+        if (!installPrompt) {
+          toast('Открой меню браузера и выбери «Установить приложение»');
+          return;
+        }
+        installPrompt.prompt();
+        await installPrompt.userChoice;
+        installPrompt = null;
+        installButton.hidden = true;
+      });
+      window.addEventListener('appinstalled', function () {
+        installPrompt = null;
+        installButton.hidden = true;
+        toast('Paint AI установлен');
+      });
       document.addEventListener('keydown', function (event) {
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
           event.preventDefault();
@@ -791,3 +824,4 @@
   </script>
 </body>
 </html>
+
